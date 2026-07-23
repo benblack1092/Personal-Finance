@@ -211,7 +211,17 @@ function renderMerchants(root, d) {
  * Transactions
  * ------------------------------------------------------------------ */
 views.transactions = async (root) => {
-  root.append(el("h2", { class: "view-title" }, "Transactions"));
+  const header = el("div", { class: "view-header" },
+    el("h2", { class: "view-title", style: "margin:0" }, "Transactions"),
+    el("button", { class: "btn", onclick: () => openAddTxnModal(() => load()) }, "+ Add transaction")
+  );
+  root.append(header);
+
+  if (!state.accounts.length) {
+    root.append(el("div", { class: "card muted" },
+      "Add an account first (Accounts tab) so transactions have somewhere to live."));
+    return;
+  }
 
   const accountSel = accountSelect(true);
   const categorySel = categorySelect(true);
@@ -599,6 +609,87 @@ views.accounts = async (root) => {
   );
   card.append(wrapTable(["Name", "Type", "Institution", ""], rows));
 };
+
+/* ------------------------------------------------------------------ *
+ * Modal + manual "Add transaction" form
+ * ------------------------------------------------------------------ */
+function openModal(title, bodyNode) {
+  const overlay = el("div", { class: "modal-overlay" });
+  const close = () => overlay.remove();
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  document.addEventListener("keydown", function esc(e) {
+    if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc); }
+  });
+  const modal = el("div", { class: "modal" },
+    el("div", { class: "modal-head" },
+      el("h3", { style: "margin:0" }, title),
+      el("button", { class: "icon", onclick: close, title: "Close" }, "✕")),
+    bodyNode
+  );
+  overlay.append(modal);
+  document.body.append(overlay);
+  return close;
+}
+
+function openAddTxnModal(onSaved) {
+  const accountSel = accountSelect(false);
+  const typeSel = el("select");
+  typeSel.append(el("option", { value: "expense" }, "Expense (money out)"));
+  typeSel.append(el("option", { value: "income" }, "Income (money in)"));
+  const dateInput = el("input", { type: "date", value: todayISO() });
+  const amountInput = el("input", { type: "number", step: "0.01", min: "0", placeholder: "0.00" });
+  const descInput = el("input", { placeholder: "e.g. Lunch at Chipotle" });
+  const merchantInput = el("input", { placeholder: "Optional, e.g. Chipotle" });
+  const categorySel = categorySelect(false);
+  const notesInput = el("textarea", { rows: "2", placeholder: "Optional" });
+
+  const saveBtn = el("button", { class: "btn", onclick: save }, "Add transaction");
+  const body = el("div", {},
+    el("div", { class: "row" }, field("Account", accountSel), field("Type", typeSel)),
+    el("div", { class: "row" }, field("Date", dateInput), field("Amount", amountInput)),
+    field("Description", descInput),
+    el("div", { class: "row" }, field("Merchant", merchantInput), field("Category (optional)", categorySel)),
+    field("Notes", notesInput),
+    el("p", { class: "muted", style: "font-size:12px" },
+      "Leave Category blank to let auto-categorization rules pick one."),
+    el("div", { style: "display:flex;gap:10px;justify-content:flex-end;margin-top:6px" }, saveBtn)
+  );
+
+  const close = openModal("Add transaction", body);
+
+  async function save() {
+    const amt = parseFloat(amountInput.value);
+    if (!accountSel.value) { toast("Choose an account", "error"); return; }
+    if (isNaN(amt) || amt <= 0) { toast("Enter a positive amount", "error"); return; }
+    if (!dateInput.value) { toast("Pick a date", "error"); return; }
+    const signed = typeSel.value === "income" ? Math.abs(amt) : -Math.abs(amt);
+    const payload = {
+      account_id: Number(accountSel.value),
+      txn_date: dateInput.value,
+      amount: signed,
+      description: descInput.value.trim(),
+      merchant: merchantInput.value.trim() || null,
+      category_id: categorySel.value ? Number(categorySel.value) : null,
+      notes: notesInput.value.trim() || null,
+    };
+    saveBtn.disabled = true;
+    try {
+      await api("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      toast("Transaction added", "success");
+      close();
+      if (onSaved) onSaved();
+    } catch (e) { toast(e.message, "error"); saveBtn.disabled = false; }
+  }
+}
+
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 /* ------------------------------------------------------------------ *
  * Reusable UI bits

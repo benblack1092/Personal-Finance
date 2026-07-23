@@ -135,6 +135,26 @@ button.icon:hover { background: var(--surface-2); color: var(--danger); }
 
 .muted { color: var(--text-dim); }
 .hidden { display: none !important; }
+
+/* ---------- View header (title + actions) ---------- */
+.view-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 48px 16px; z-index: 200; overflow-y: auto;
+}
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; width: 100%; max-width: 520px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.4);
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal textarea { resize: vertical; font-family: inherit; }
 .spacer { flex: 1; }
 .toolbar { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
 h2.view-title { margin: 0 0 18px; }
