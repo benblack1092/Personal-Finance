@@ -119,3 +119,9 @@ This is a single-user, local-first app with no authentication — it's meant to
 run on your own machine. `finance.db` is git-ignored so your financial data is
 never committed. If you deploy it anywhere network-accessible, put it behind
 authentication and HTTPS first.
+
+**No external requests.** The app makes zero network calls to third parties.
+The server binds to `127.0.0.1` only, the backend never calls out, and the
+charting library (Chart.js) is **vendored locally** in `static/vendor/` rather
+than loaded from a CDN — so the app runs fully offline and nothing about your
+finances (or even a page-load request) ever leaves your device.

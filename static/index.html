@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Personal Finance</title>
   <link rel="stylesheet" href="/static/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Chart.js is vendored locally (static/vendor/) so the app makes no external
+       network requests — everything, including the charting library, is on-device. -->
+  <script src="/static/vendor/chart.umd.js"></script>
 </head>
 <body>
   <header class="topbar">
