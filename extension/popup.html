@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <span class="brand">💰 Finance Importer</span>
+    <span id="conn" class="conn" title="App connection"></span>
+  </header>
+
+  <main id="main">
+    <div class="field">
+      <label for="account">Import into account</label>
+      <select id="account"></select>
+    </div>
+
+    <button id="scan" class="btn">Scan this page</button>
+    <p id="status" class="status"></p>
+
+    <!-- Populated dynamically: table picker / mapping / amazon preview -->
+    <div id="workarea"></div>
+  </main>
+
+  <footer>
+    <a id="openApp" href="http://127.0.0.1:8000/" target="_blank">Open dashboard ↗</a>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -70,12 +70,14 @@ def _external_id(account_id: int, txn_date, amount: float, description: str) -> 
     return hashlib.sha1(raw.encode()).hexdigest()[:20]
 
 
-def parse_csv(content: bytes, mapping: ColumnMapping, account_id: int) -> list[dict]:
-    """Parse CSV bytes into a list of transaction dicts ready for insertion."""
-    text = content.decode("utf-8-sig", errors="replace")
-    reader = csv.DictReader(io.StringIO(text))
+def rows_from_records(records: list[dict], mapping: ColumnMapping, account_id: int) -> list[dict]:
+    """Normalize a list of ``{header: value}`` records into transaction dicts.
+
+    Shared by the CSV importer and the browser-extension web importer so both
+    paths get identical date/amount parsing, merchant cleaning, and dedup ids.
+    """
     out: list[dict] = []
-    for row in reader:
+    for row in records:
         raw_date = (row.get(mapping.date) or "").strip()
         description = (row.get(mapping.description) or "").strip()
         if not raw_date and not description:
@@ -89,16 +91,32 @@ def parse_csv(content: bytes, mapping: ColumnMapping, account_id: int) -> list[d
         if amount is None:
             continue
 
+        # Prefer an explicit merchant column when the mapping names one
+        # (e.g. Amazon sends "Amazon", some bank tables have a payee column);
+        # otherwise derive a clean merchant from the description.
+        merchant = ""
+        if mapping.merchant:
+            merchant = (row.get(mapping.merchant) or "").strip()
+        if not merchant:
+            merchant = clean_merchant(description)
+
         out.append(
             {
                 "txn_date": txn_date,
                 "amount": amount,
                 "description": description,
-                "merchant": clean_merchant(description),
+                "merchant": merchant,
                 "external_id": _external_id(account_id, txn_date, amount, description),
             }
         )
     return out
+
+
+def parse_csv(content: bytes, mapping: ColumnMapping, account_id: int) -> list[dict]:
+    """Parse CSV bytes into a list of transaction dicts ready for insertion."""
+    text = content.decode("utf-8-sig", errors="replace")
+    reader = csv.DictReader(io.StringIO(text))
+    return rows_from_records(list(reader), mapping, account_id)
 
 
 def _extract_amount(row: dict, mapping: ColumnMapping) -> float | None:

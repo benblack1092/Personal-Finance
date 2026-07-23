@@ -29,6 +29,9 @@ SQLite file — nothing is ever sent to a third party.
   trend bars, and your top merchants, all filterable by account and date range.
 - **Editable transactions** — reclassify any transaction's category inline,
   search, filter, add manual entries, and delete.
+- **Browser extension** — scan the bank/card/Amazon page you're already viewing
+  and import its transactions in one click, no file download needed
+  (see [`extension/`](extension/README.md)).
 
 ## Why file import instead of auto-login?
 
@@ -63,6 +66,16 @@ categorization rules.
 Then in the app: **Accounts** → add the account, **Import** → pick the type,
 choose the account, and drop in the file.
 
+### Or skip the download: use the browser extension
+
+The [`extension/`](extension/README.md) folder contains a Chrome/Edge extension
+that scrapes the page you're viewing (bank, credit card, or Amazon **Your
+Orders**) and pushes the transactions straight into the app — no export/upload
+step. It reads a page only when you click **Scan** and never stores credentials.
+Load it unpacked from `chrome://extensions` (Developer mode → Load unpacked →
+select `extension/`) while the app is running. See its README for details and
+the included test fixtures.
+
 ## Project layout
 
 ```
@@ -76,6 +89,7 @@ app/
   importers/         csv / ofx / amazon parsers + shared helpers
   routers/           accounts, categories, transactions, imports, analytics
 static/              index.html + styles.css + app.js (vanilla-JS SPA)
+extension/           Chrome/Edge MV3 extension (scrape pages -> POST /api/imports/web)
 tests/               pytest unit + API tests
 ```
 

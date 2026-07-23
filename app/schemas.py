@@ -112,10 +112,29 @@ class ColumnMapping(BaseModel):
     debit: str | None = None
     credit: str | None = None
     description: str
+    # Optional column naming a canonical merchant; used verbatim when present.
+    merchant: str | None = None
     # When True, positive numbers in the amount column mean spending and are
     # flipped to negative (common for credit-card exports).
     flip_sign: bool = False
     date_format: str | None = None  # e.g. "%m/%d/%Y"; auto-detected when omitted
+
+
+class WebImportPayload(BaseModel):
+    """Payload the browser extension POSTs after scraping a page.
+
+    Both the generic-table and Amazon paths use this one shape: ``records`` is a
+    list of ``{header: value}`` rows and ``mapping`` says how to read them.
+    """
+
+    account_id: int
+    source: str = "web"  # "web" | "amazon"
+    mapping: ColumnMapping
+    records: list[dict] = Field(default_factory=list)
+
+
+class SuggestMappingRequest(BaseModel):
+    headers: list[str]
 
 
 class ImportResult(BaseModel):

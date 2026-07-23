@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>amazon.com — Your Orders (test fixture)</title>
+  <style>
+    body { font-family: "Amazon Ember", system-ui, sans-serif; margin: 40px; }
+    .order-card { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 18px; }
+    .order-header { background: #f0f2f2; padding: 12px 16px; display: flex; gap: 40px; }
+    .a-column { display: flex; flex-direction: column; }
+    .label { font-size: 12px; color: #565959; }
+    .value { font-weight: 700; }
+    .yohtmlc-item { padding: 12px 16px; border-top: 1px solid #eee; }
+    .a-color-price { color: #b12704; }
+  </style>
+</head>
+<body>
+  <h1>Your Orders</h1>
+  <p>Local test page mimicking Amazon's order-history markup so you can try the
+     extension's Amazon scraper without real data. NOTE: real Amazon markup
+     changes often — this is only an approximation.</p>
+
+  <!-- The scraper keys off hostname containing "amazon.". This fixture is served
+       from localhost/file, so it will instead be picked up as a generic table?
+       No — there is no <table>; open it and the popup will still show the items
+       via the generic path only if tables exist. To exercise the Amazon path,
+       visit the real site. This page documents the expected structure. -->
+
+  <div class="order-card">
+    <div class="order-header">
+      <div class="a-column"><span class="label">Order placed</span><span class="value">July 3, 2026</span></div>
+      <div class="a-column"><span class="label">Total</span><span class="value">$34.48</span></div>
+    </div>
+    <div class="yohtmlc-item">
+      <a class="a-link-normal" href="/dp/B0EXAMPLE1">USB-C to USB-C Cable 6ft (2-pack)</a>
+      <div><span class="a-color-price">$12.99</span></div>
+    </div>
+    <div class="yohtmlc-item">
+      <a class="a-link-normal" href="/dp/B0EXAMPLE2">Stainless Steel Water Bottle 32oz</a>
+      <div><span class="a-color-price">$21.49</span></div>
+    </div>
+  </div>
+
+  <div class="order-card">
+    <div class="order-header">
+      <div class="a-column"><span class="label">Order placed</span><span class="value">July 8, 2026</span></div>
+      <div class="a-column"><span class="label">Total</span><span class="value">$9.99</span></div>
+    </div>
+    <div class="yohtmlc-item">
+      <a class="a-link-normal" href="/dp/B0EXAMPLE3">Paperback Notebook A5 Dotted</a>
+      <div><span class="a-color-price">$9.99</span></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -29,6 +30,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Personal Finance", version="0.1.0", lifespan=lifespan)
+
+# The browser extension runs on a chrome-extension:// origin and the dashboard
+# on localhost; both need CORS to reach the API. Scoped to those origins only —
+# the app still binds to 127.0.0.1 (see run.py), so it isn't network-exposed.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"^chrome-extension://.*$|^http://(127\.0\.0\.1|localhost):8000$",
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 app.include_router(accounts.router)
 app.include_router(categories.router)
