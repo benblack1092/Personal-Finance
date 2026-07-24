@@ -1,0 +1,4 @@
+# Build-only dependencies for producing the standalone executable.
+# Install alongside requirements.txt:  pip install -r requirements.txt -r requirements-build.txt
+pyinstaller==6.11.1
+pillow==10.4.0

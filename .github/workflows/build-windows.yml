@@ -1,0 +1,53 @@
+name: Build Windows executable
+
+# Produces a standalone PersonalFinance.exe that runs the app with no Python
+# install required. Runs on demand, and attaches the .exe to GitHub Releases
+# when you push a version tag (e.g. v0.1.0).
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # needed to attach the exe to a Release on tag builds
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-build.txt
+
+      - name: Build executable
+        run: pyinstaller packaging/PersonalFinance.spec --noconfirm --clean
+
+      - name: Smoke-test the executable
+        # Boots the packaged server and checks /health so a broken bundle
+        # (e.g. a missing hidden import) fails the build instead of shipping.
+        run: .\dist\PersonalFinance.exe --selftest
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PersonalFinance-windows
+          path: dist/PersonalFinance.exe
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/PersonalFinance.exe

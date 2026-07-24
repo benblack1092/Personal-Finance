@@ -8,12 +8,13 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# The database lives next to the project root by default. Override with the
-# FINANCE_DB_PATH environment variable if you want to store it elsewhere.
-import os
+from app.paths import default_db_path
 
-DB_PATH = os.environ.get("FINANCE_DB_PATH", str(Path(__file__).resolve().parent.parent / "finance.db"))
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+# Where the SQLite database lives: FINANCE_DB_PATH env var if set, a per-user
+# data directory when packaged as an executable, else the project root.
+DB_PATH = default_db_path()
+# as_posix() keeps the sqlite URL valid on Windows (forward slashes).
+DATABASE_URL = f"sqlite:///{Path(DB_PATH).as_posix()}"
 
 # check_same_thread=False is required because FastAPI may access the session
 # from different threads within a single request lifecycle.

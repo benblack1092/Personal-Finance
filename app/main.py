@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.database import SessionLocal, init_db
 from app.categorize import seed_defaults
+from app.paths import resource_path
 from app.routers import accounts, analytics, categories, imports, transactions
 
 
@@ -47,7 +48,7 @@ app.include_router(transactions.router)
 app.include_router(imports.router)
 app.include_router(analytics.router)
 
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+STATIC_DIR = resource_path("static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

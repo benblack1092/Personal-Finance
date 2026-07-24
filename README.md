@@ -56,6 +56,24 @@ python run.py
 On first launch the app creates `finance.db` and seeds default categories and
 categorization rules.
 
+### Run as a Windows app (no Python needed)
+
+You can package the whole app into a single **`PersonalFinance.exe`** that starts
+the server and opens the dashboard on double-click — no Python install required.
+
+- **Download a prebuilt exe:** the *Build Windows executable* GitHub Actions
+  workflow produces it. Run it from the Actions tab and download the artifact, or
+  push a `v*` tag to attach the exe to a GitHub Release.
+- **Build locally on Windows:**
+  ```powershell
+  pip install -r requirements.txt -r requirements-build.txt
+  pyinstaller packaging/PersonalFinance.spec --noconfirm --clean
+  ```
+
+See [`packaging/README.md`](packaging/README.md) for details. The packaged app
+stores its database in `%LOCALAPPDATA%\PersonalFinance\finance.db` so your data
+persists across restarts and updates.
+
 ## How to get your statement files
 
 | Source | Where to export |
@@ -88,8 +106,11 @@ app/
   services.py        Insert-with-dedup + auto-categorize
   importers/         csv / ofx / amazon parsers + shared helpers
   routers/           accounts, categories, transactions, imports, analytics
+  paths.py           dev/frozen-aware resource & database paths
 static/              index.html + styles.css + app.js (vanilla-JS SPA)
 extension/           Chrome/Edge MV3 extension (scrape pages -> POST /api/imports/web)
+launcher.py          desktop entry point (starts server + opens browser)
+packaging/           PyInstaller spec + icon to build the Windows exe
 tests/               pytest unit + API tests
 ```
 
@@ -102,8 +123,10 @@ python -m pytest
 
 ## Configuration
 
-- `FINANCE_DB_PATH` — override where the SQLite database is stored
-  (default: `finance.db` in the project root).
+- `FINANCE_DB_PATH` — override where the SQLite database is stored. Default:
+  `finance.db` in the project root when run from source, or
+  `%LOCALAPPDATA%\PersonalFinance\finance.db` (per-user data dir) when run as the
+  packaged executable.
 
 ## Roadmap ideas
 
